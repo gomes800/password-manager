@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gomes800/password-manager/model"
-	"github.com/gomes800/password-manager/repository"
+	"github.com/gomes800/password-manager/internal/model"
+	"github.com/gomes800/password-manager/internal/service"
 )
 
 type CredentialHandler struct {
-	repo *repository.CredentialRepository
+	svc *service.CredentialService
 }
 
-func NewCredentialHandler(repo *repository.CredentialRepository) *CredentialHandler {
-	return &CredentialHandler{repo: repo}
+func NewCredentialHandler(svc *service.CredentialService) *CredentialHandler {
+	return &CredentialHandler{svc: svc}
 }
 
 func (h *CredentialHandler) Save(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +24,7 @@ func (h *CredentialHandler) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.repo.Save(r.Context(), &c); err != nil {
+	if err := h.svc.CreateCredential(r.Context(), &c); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -36,7 +36,7 @@ func (h *CredentialHandler) Save(w http.ResponseWriter, r *http.Request) {
 func (h *CredentialHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	credential, err := h.repo.GetByID(r.Context(), id)
+	credential, err := h.svc.GetCredential(r.Context(), id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Credential not found", http.StatusNotFound)

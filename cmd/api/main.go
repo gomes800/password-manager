@@ -11,8 +11,9 @@ import (
 	"time"
 
 	"github.com/gomes800/password-manager/database"
-	"github.com/gomes800/password-manager/handler"
-	"github.com/gomes800/password-manager/repository"
+	"github.com/gomes800/password-manager/internal/handler"
+	"github.com/gomes800/password-manager/internal/repository"
+	"github.com/gomes800/password-manager/internal/service"
 	"github.com/gomes800/password-manager/security"
 )
 
@@ -25,6 +26,8 @@ func main() {
 
 	credentialRepo := repository.NewCredentialRepository(db)
 
+	credentialService := service.NewCredentialService(credentialRepo)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -33,7 +36,7 @@ func main() {
 	}
 	log.Println("Database started")
 
-	credentialHandler := handler.NewCredentialHandler(credentialRepo)
+	credentialHandler := handler.NewCredentialHandler(credentialService)
 
 	mux := http.NewServeMux()
 
